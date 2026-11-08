@@ -1,29 +1,21 @@
+
 #!name=去留订阅到期时间测试
-#!desc=作者授权测试：动态匹配用户，仅处理去留已有的 Pro access 年订阅记录。
+#!desc=RevenueCat 订阅到期时间模拟与客户端校验测试
 # ==UserScript==
 # @ScriptName        去留订阅到期时间测试
-# @Function          将已有会员记录的到期时间改为 2999 年，验证客户端响应校验行为
-# @UpdateTime        2026-11-06
 # @Suitable          Shadowrocket
-# @Version           V1.1.1
+# @Version           V1.2.0
+# @UpdateTime        2026-11-08
 # ==/UserScript==
-#
-# 使用说明：
-# 1. 在 Shadowrocket 的配置 > 模块中添加本模块的原始文件链接。
-# 2. 模块会自动引用同一仓库的 LingerPro.js。
-# 3. 需已配置目标域名的 HTTPS 解密；测试结束后停用本模块。
-#
-# 范围：脚本检查 X-Client-Bundle-ID=com.libowang.Linger，用户 ID 动态匹配。
-# 限制：仅修改已有 Pro access / linger_yearly；不生成购买记录、不伪造签名。
-# 状态：通过 JS 语法检查，尚未验证 Shadowrocket 实机效果。
 
 [Script]
-# > 请求缓存处理，避免订阅接口返回无正文的 304
-LingerExpiryRequest = type=http-request,pattern=^https://api\.rc-backup\.com/v1/subscribers/[^/?#]+$,script-path=https://raw.githubusercontent.com/johnnywwy/Linger_pro/main/LingerPro.js,timeout=10
+# GET /v1/subscribers/{user_id}
+# POST /v1/receipts
+# 仅用于自有测试域名
 
-# > 响应到期时间测试，用户 ID 不写死，排除 /offerings 等子路径
-LingerExpiryResponse = type=http-response,pattern=^https://api\.rc-backup\.com/v1/subscribers/[^/?#]+$,requires-body=true,script-path=https://raw.githubusercontent.com/johnnywwy/Linger_pro/main/LingerPro.js,timeout=10
+LingerExpiryRequest = type=http-request,pattern=^https:\/\/rc-mock\.example\.test\/v1\/(subscribers\/[^/?#]+|receipts)(\?.*)?$,script-path=https://raw.githubusercontent.com/johnnywwy/Linger_pro/main/LingerPro.js,timeout=10
+
+LingerExpiryResponse = type=http-response,pattern=^https:\/\/rc-mock\.example\.test\/v1\/(subscribers\/[^/?#]+|receipts)(\?.*)?$,requires-body=true,script-path=https://raw.githubusercontent.com/johnnywwy/Linger_pro/main/LingerPro.js,timeout=10
 
 [MITM]
-# > 仅追加目标域名
-hostname = %APPEND% api.rc-backup.com
+hostname = %APPEND% rc-mock.example.test
